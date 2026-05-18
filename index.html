@@ -1,242 +1,670 @@
-=== index.html ===
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Clip-АЮ | Профессиональный видеоредактор</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clip-аю — Профессиональный видеомонтаж</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0c12;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* SPLASH SCREEN */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, #0b0e17, #03050a);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease;
+        }
+
+        .splash-logo {
+            width: 180px;
+            animation: floatLogo 1.8s infinite alternate;
+        }
+
+        @keyframes floatLogo {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-12px); }
+        }
+
+        .loader {
+            margin-top: 40px;
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255,180,70,0.2);
+            border-top: 5px solid #FFB347;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* MAIN APP */
+        .app-container {
+            display: none;
+            height: 100vh;
+            flex-direction: column;
+            background: #0f1119;
+        }
+
+        /* TOP BAR */
+        .top-bar {
+            background: #1a1e2c;
+            border-bottom: 1px solid #2a2e3e;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-area img {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+        }
+
+        .logo-area span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FFD966, #FF9F2E);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .project-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .top-btn {
+            background: rgba(255,180,70,0.15);
+            border: 1px solid rgba(255,180,70,0.3);
+            padding: 8px 20px;
+            border-radius: 8px;
+            color: #FFC97A;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .top-btn:hover {
+            background: #FFB347;
+            color: #0f1119;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: #131724;
+            padding: 8px 24px;
+            border-bottom: 1px solid #2a2e3e;
+        }
+
+        .tab {
+            padding: 10px 24px;
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+
+        .tab:hover {
+            background: #2a2e3e;
+            color: #FFC97A;
+        }
+
+        .tab.active {
+            background: #FFB34720;
+            color: #FFB347;
+            border-bottom: 2px solid #FFB347;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* LEFT PANEL (Edit) */
+        .edit-panel {
+            width: 320px;
+            background: #131724;
+            border-right: 1px solid #2a2e3e;
+            padding: 20px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .edit-panel.active {
+            display: block;
+        }
+
+        .panel-section {
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #2a2e3e;
+        }
+
+        .panel-title {
+            color: #FFC97A;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .speed-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .speed-btn {
+            background: #1e2230;
+            border: 1px solid #3a3e50;
+            padding: 6px 12px;
+            border-radius: 6px;
+            color: #ddd;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .speed-btn:hover, .speed-btn.active {
+            background: #FFB347;
+            color: #0f1119;
+            border-color: #FFB347;
+        }
+
+        .volume-slider {
+            width: 100%;
+            margin: 8px 0;
+        }
+
+        .trim-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .trim-btn {
+            background: #1e2230;
+            border: 1px solid #3a3e50;
+            padding: 8px;
+            border-radius: 6px;
+            color: #FFC97A;
+            cursor: pointer;
+        }
+
+        .transform-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .transform-btn {
+            background: #1e2230;
+            border: 1px solid #3a3e50;
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: #FFC97A;
+            cursor: pointer;
+        }
+
+        /* VIDEO PREVIEW */
+        .video-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #000;
+        }
+
+        .video-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            position: relative;
+        }
+
+        video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .timeline-controls {
+            background: #1a1e2c;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .play-btn {
+            background: #FFB347;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            font-size: 1.3rem;
+        }
+
+        .chrono {
+            font-family: monospace;
+            font-size: 1.2rem;
+            color: #FFE0A3;
+        }
+
+        /* TIMELINE */
+        .timeline-area {
+            height: 180px;
+            background: #0c0f18;
+            border-top: 1px solid #2a2e3e;
+            padding: 12px;
+        }
+
+        .timeline-header {
+            color: #FFC285;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+        }
+
+        .clips-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 8px;
+            min-height: 100px;
+        }
+
+        .timeline-clip {
+            min-width: 150px;
+            background: #1e2230;
+            border-radius: 8px;
+            padding: 8px;
+            border-left: 3px solid #FFB347;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .timeline-clip.selected {
+            background: #2a2e3e;
+            border: 1px solid #FFB347;
+        }
+
+        .clip-name {
+            font-size: 0.75rem;
+            color: #ddd;
+        }
+
+        .clip-duration {
+            font-size: 0.7rem;
+            color: #FFC97A;
+        }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Хедер -->
-        <header class="header">
-            <div class="logo">
-                <span class="logo-neon">🎬 Clip-АЮ</span>
-                <span class="logo-badge">PRO</span>
-            </div>
-            <div class="header-controls">
-                <button id="importBtn" class="btn btn-secondary">
-                    📁 Импорт
-                </button>
-                <button id="exportBtn" class="btn btn-primary">
-                    💾 Экспорт
-                </button>
-            </div>
-        </header>
 
-        <!-- Основная область -->
-        <div class="main-workspace">
-            <!-- Панель预览 -->
-            <div class="preview-panel">
-                <div class="video-wrapper">
-                    <video id="previewVideo" class="preview-video" controlslist="nodownload"></video>
-                    <div class="video-overlay" id="videoOverlay">
-                        <button class="play-btn-large" id="largePlayBtn">▶</button>
-                    </div>
-                    <div class="time-code">
-                        <span id="currentTime">00:00:00</span> / <span id="totalTime">00:00:00</span>
-                    </div>
+<div class="splash-screen" id="splash">
+    <img class="splash-logo" src="https://i.ibb.co/fGBMHT6m/image-Photoroom-2.png" alt="Clip-аю">
+    <div style="font-size: 2rem; font-weight: 700; margin-top: 20px; color: #FFB347;">Clip-аю</div>
+    <div class="loader"></div>
+</div>
+
+<div class="app-container" id="app">
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="logo-area">
+            <img src="https://i.ibb.co/fGBMHT6m/image-Photoroom-2.png" alt="logo">
+            <span>Clip-аю</span>
+        </div>
+        <div class="project-controls">
+            <button class="top-btn" id="importBtn"><i class="fas fa-upload"></i> Импорт</button>
+            <button class="top-btn" id="exportBtn"><i class="fas fa-download"></i> Экспорт</button>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" data-tab="edit"><i class="fas fa-pen"></i> Редактирование</button>
+        <button class="tab" data-tab="text"><i class="fas fa-font"></i> Текст</button>
+        <button class="tab" data-tab="effects"><i class="fas fa-magic"></i> Эффекты</button>
+        <button class="tab" data-tab="audio"><i class="fas fa-music"></i> Аудио</button>
+        <button class="tab" data-tab="video"><i class="fas fa-sliders-h"></i> Настройки видео</button>
+    </div>
+
+    <div class="main-content">
+        <!-- Edit Panel -->
+        <div class="edit-panel active" id="editPanel">
+            <div class="panel-section">
+                <div class="panel-title">Скорость</div>
+                <div class="speed-buttons">
+                    <button class="speed-btn" data-speed="0.25">0.25x</button>
+                    <button class="speed-btn" data-speed="0.5">0.5x</button>
+                    <button class="speed-btn" data-speed="1">1x</button>
+                    <button class="speed-btn" data-speed="1.5">1.5x</button>
+                    <button class="speed-btn" data-speed="2">2x</button>
+                    <button class="speed-btn" data-speed="4">4x</button>
                 </div>
             </div>
 
-            <!-- Панель инструментов -->
-            <div class="tools-panel">
-                <div class="tools-tabs">
-                    <button class="tab-btn active" data-tab="edit">✂️ Редактирование</button>
-                    <button class="tab-btn" data-tab="text">📝 Текст</button>
-                    <button class="tab-btn" data-tab="effects">✨ Эффекты</button>
-                    <button class="tab-btn" data-tab="audio">🎵 Аудио</button>
+            <div class="panel-section">
+                <div class="panel-title">Громкость: <span id="volumeValue">100</span>%</div>
+                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-title">Обрезка</div>
+                <div class="trim-controls">
+                    <button class="trim-btn" id="setStartBtn"><i class="fas fa-cut"></i> Установить начало</button>
+                    <button class="trim-btn" id="setEndBtn"><i class="fas fa-cut"></i> Установить конец</button>
+                    <button class="trim-btn" id="resetTrimBtn"><i class="fas fa-undo"></i> Сброс</button>
                 </div>
+            </div>
 
-                <div class="tools-content">
-                    <!-- Вкладка Редактирование -->
-                    <div class="tab-content active" id="editTab">
-                        <div class="control-group">
-                            <label>Скорость</label>
-                            <div class="speed-buttons">
-                                <button class="speed-btn" data-speed="0.25">0.25x</button>
-                                <button class="speed-btn" data-speed="0.5">0.5x</button>
-                                <button class="speed-btn active" data-speed="1">1x</button>
-                                <button class="speed-btn" data-speed="1.5">1.5x</button>
-                                <button class="speed-btn" data-speed="2">2x</button>
-                                <button class="speed-btn" data-speed="4">4x</button>
-                            </div>
-                        </div>
-                        <div class="control-group">
-                            <label>Громкость: <span id="volumeValue">100%</span></label>
-                            <input type="range" id="volumeSlider" min="0" max="200" value="100" class="slider">
-                        </div>
-                        <div class="control-group">
-                            <label>Обрезка</label>
-                            <div class="trim-controls">
-                                <button id="setTrimStartBtn" class="small-btn">◀ Установить начало</button>
-                                <button id="setTrimEndBtn" class="small-btn">Установить конец ▶</button>
-                                <button id="resetTrimBtn" class="small-btn">⟳ Сброс</button>
-                            </div>
-                        </div>
-                        <div class="control-group">
-                            <label>Поворот/Зеркало</label>
-                            <div class="transform-buttons">
-                                <button id="rotateLeftBtn" class="small-btn">↺ Повернуть</button>
-                                <button id="flipHorizontalBtn" class="small-btn">⟷ Отразить</button>
-                                <button id="flipVerticalBtn" class="small-btn">⟵⟶ Вертикаль</button>
-                            </div>
-                        </div>
-                        <div class="control-group">
-                            <label>Фильтры</label>
-                            <div class="filter-buttons">
-                                <button class="filter-btn" data-filter="none">Нет</button>
-                                <button class="filter-btn" data-filter="grayscale(100%)">Ч/Б</button>
-                                <button class="filter-btn" data-filter="sepia(100%)">Сепия</button>
-                                <button class="filter-btn" data-filter="brightness(150%)">Ярче</button>
-                                <button class="filter-btn" data-filter="contrast(150%)">Контраст</button>
-                                <button class="filter-btn" data-filter="blur(3px)">Размытие</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Вкладка Текст -->
-                    <div class="tab-content" id="textTab">
-                        <button id="addTextBtn" class="btn-primary full-width">➕ Добавить текст</button>
-                        <div class="text-layers-list" id="textLayersList"></div>
-                    </div>
-
-                    <!-- Вкладка Эффекты -->
-                    <div class="tab-content" id="effectsTab">
-                        <div class="effect-group">
-                            <label>Анимация появления</label>
-                            <select id="enterAnimation">
-                                <option value="none">Нет</option>
-                                <option value="fadeIn">Появление</option>
-                                <option value="slideInLeft">Слева</option>
-                                <option value="slideInRight">Справа</option>
-                                <option value="zoomIn">Приближение</option>
-                                <option value="bounceIn">Подпрыгивание</option>
-                            </select>
-                        </div>
-                        <div class="effect-group">
-                            <label>Анимация исчезновения</label>
-                            <select id="exitAnimation">
-                                <option value="none">Нет</option>
-                                <option value="fadeOut">Исчезание</option>
-                                <option value="slideOutLeft">Влево</option>
-                                <option value="slideOutRight">Вправо</option>
-                                <option value="zoomOut">Отдаление</option>
-                            </select>
-                        </div>
-                        <div class="effect-group">
-                            <label>Наложение цвета</label>
-                            <input type="color" id="overlayColor" value="#000000">
-                            <input type="range" id="overlayOpacity" min="0" max="100" value="0">
-                            <span>Непрозрачность: <span id="opacityValue">0</span>%</span>
-                        </div>
-                    </div>
-
-                    <!-- Вкладка Аудио -->
-                    <div class="tab-content" id="audioTab">
-                        <div class="control-group">
-                            <label>Фоновая музыка</label>
-                            <input type="file" id="audioFileInput" accept="audio/*">
-                            <div id="audioInfo" class="audio-info"></div>
-                            <button id="removeAudioBtn" class="small-btn">Удалить музыку</button>
-                        </div>
-                        <div class="control-group">
-                            <label>Громкость музыки</label>
-                            <input type="range" id="bgmVolume" min="0" max="100" value="50">
-                        </div>
-                    </div>
+            <div class="panel-section">
+                <div class="panel-title">Поворот / Зеркало</div>
+                <div class="transform-controls">
+                    <button class="transform-btn" id="rotateBtn"><i class="fas fa-undo-alt"></i> Повернуть</button>
+                    <button class="transform-btn" id="flipHorizontalBtn"><i class="fas fa-arrows-alt-h"></i> Отразить</button>
+                    <button class="transform-btn" id="flipVerticalBtn"><i class="fas fa-arrows-alt-v"></i> Вертикаль</button>
                 </div>
             </div>
         </div>
 
-        <!-- Таймлайн -->
-        <div class="timeline-container">
-            <div class="timeline-header">
-                <div class="timeline-controls">
-                    <button id="zoomInBtn" class="icon-btn">🔍+</button>
-                    <button id="zoomOutBtn" class="icon-btn">🔍-</button>
-                    <button id="splitBtn" class="icon-btn">✂️ Разделить</button>
-                    <button id="deleteSegmentBtn" class="icon-btn">🗑️ Удалить</button>
-                </div>
+        <!-- Video Area -->
+        <div class="video-area">
+            <div class="video-wrapper">
+                <video id="mainVideo" controlsList="nodownload"></video>
             </div>
-            <div class="timeline-track" id="timelineTrack">
-                <canvas id="thumbnailsCanvas" class="thumbnails-canvas"></canvas>
-                <div class="trim-handles">
-                    <div class="trim-handle left" id="trimLeft"></div>
-                    <div class="trim-handle right" id="trimRight"></div>
-                    <div class="trim-region" id="trimRegion"></div>
-                </div>
-                <div class="playhead" id="playhead"></div>
-                <div class="timeline-ruler" id="timelineRuler"></div>
+            <div class="timeline-controls">
+                <button class="play-btn" id="playPauseBtn"><i class="fas fa-play"></i></button>
+                <div class="chrono" id="chronoDisplay">00:00 / 00:00</div>
             </div>
         </div>
     </div>
 
-    <!-- Модальное окно текста -->
-    <div id="textModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>📝 Редактор текста</h3>
-                <span class="close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <input type="text" id="textInput" placeholder="Введите текст" maxlength="200">
-                <div class="form-row">
-                    <select id="fontSelect">
-                        <option value="Arial">Arial</option>
-                        <option value="Impact">Impact</option>
-                        <option value="Courier New">Courier New</option>
-                        <option value="Georgia">Georgia</option>
-                        <option value="Verdana">Verdana</option>
-                        <option value="'Comic Sans MS'">Comic Sans MS</option>
-                    </select>
-                    <input type="number" id="fontSize" min="8" max="120" value="48">
-                    <input type="color" id="textColor" value="#ffffff">
-                </div>
-                <div class="form-row">
-                    <select id="positionSelect">
-                        <option value="top-left">Верх-лево</option>
-                        <option value="top-center">Верх-центр</option>
-                        <option value="top-right">Верх-право</option>
-                        <option value="center-left">Центр-лево</option>
-                        <option value="center" selected>Центр</option>
-                        <option value="center-right">Центр-право</option>
-                        <option value="bottom-left">Низ-лево</option>
-                        <option value="bottom-center">Низ-центр</option>
-                        <option value="bottom-right">Низ-право</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label>
-                        <input type="checkbox" id="textStroke"> Обводка
-                    </label>
-                    <input type="color" id="strokeColor" value="#000000" disabled>
-                    <input type="number" id="strokeWidth" value="2" min="1" max="10" disabled>
-                </div>
-                <div class="form-row">
-                    <label>Начало (сек): <input type="number" id="startTime" step="0.5" value="0"></label>
-                    <label>Конец (сек): <input type="number" id="endTime" step="0.5" value="5"></label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="saveTextBtn" class="btn-primary">✅ Добавить</button>
-            </div>
-        </div>
+    <!-- Timeline -->
+    <div class="timeline-area">
+        <div class="timeline-header"><i class="fas fa-film"></i> Дорожка монтажа</div>
+        <div class="clips-container" id="timelineClips"></div>
     </div>
+</div>
 
-    <!-- Прогресс экспорта -->
-    <div id="exportProgress" class="export-progress" style="display: none;">
-        <div class="progress-header">
-            <span>🎬 Экспорт видео...</span>
-            <span id="exportPercent">0%</span>
-        </div>
-        <div class="progress-bar">
-            <div class="progress-fill"></div>
-        </div>
-        <p id="exportStatus">Подготовка...</p>
-    </div>
+<script>
+    let project = {
+        clips: [],
+        currentClipIndex: -1
+    };
+    let videoPlayer = null;
+    let trimStart = null;
+    let trimEnd = null;
+    let currentRotation = 0;
+    let currentFlipH = false;
+    let currentFlipV = false;
 
-    <script src="script.js"></script>
+    // Splash
+    setTimeout(() => {
+        document.getElementById('splash').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('app').style.display = 'flex';
+            initApp();
+        }, 800);
+    }, 1500);
+
+    function initApp() {
+        videoPlayer = document.getElementById('mainVideo');
+        
+        // Import video
+        document.getElementById('importBtn').onclick = () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'video/*';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    const tempVideo = document.createElement('video');
+                    tempVideo.preload = 'metadata';
+                    tempVideo.onloadedmetadata = () => {
+                        const newClip = {
+                            id: Date.now(),
+                            name: file.name,
+                            url: url,
+                            duration: tempVideo.duration,
+                            speed: 1,
+                            volume: 1,
+                            trimStart: 0,
+                            trimEnd: tempVideo.duration
+                        };
+                        project.clips.push(newClip);
+                        if (project.currentClipIndex === -1) {
+                            project.currentClipIndex = 0;
+                            loadClip(0);
+                        }
+                        updateTimeline();
+                    };
+                    tempVideo.src = url;
+                    tempVideo.load();
+                }
+            };
+            input.click();
+        };
+
+        // Export
+        document.getElementById('exportBtn').onclick = () => {
+            alert('Экспорт видео в разработке. Сохранение проекта...');
+            const projectData = JSON.stringify(project.clips.map(c => ({name: c.name, duration: c.duration})));
+            localStorage.setItem('clip_ayu_project', projectData);
+            alert('Проект сохранён локально!');
+        };
+
+        // Speed buttons
+        document.querySelectorAll('.speed-btn').forEach(btn => {
+            btn.onclick = () => {
+                const speed = parseFloat(btn.dataset.speed);
+                if (videoPlayer && project.currentClipIndex !== -1) {
+                    videoPlayer.playbackRate = speed;
+                    project.clips[project.currentClipIndex].speed = speed;
+                }
+            };
+        });
+
+        // Volume
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeValue = document.getElementById('volumeValue');
+        volumeSlider.oninput = () => {
+            const vol = volumeSlider.value / 100;
+            videoPlayer.volume = vol;
+            volumeValue.innerText = volumeSlider.value;
+            if (project.currentClipIndex !== -1) {
+                project.clips[project.currentClipIndex].volume = vol;
+            }
+        };
+
+        // Trim
+        document.getElementById('setStartBtn').onclick = () => {
+            if (videoPlayer && project.currentClipIndex !== -1) {
+                trimStart = videoPlayer.currentTime;
+                alert(`Начало обрезки установлено на ${trimStart.toFixed(2)}с`);
+            }
+        };
+        document.getElementById('setEndBtn').onclick = () => {
+            if (videoPlayer && project.currentClipIndex !== -1) {
+                trimEnd = videoPlayer.currentTime;
+                alert(`Конец обрезки установлен на ${trimEnd.toFixed(2)}с`);
+                if (trimStart !== null && trimEnd > trimStart) {
+                    const clip = project.clips[project.currentClipIndex];
+                    clip.trimStart = trimStart;
+                    clip.trimEnd = trimEnd;
+                    videoPlayer.currentTime = trimStart;
+                    alert('Обрезка применена!');
+                }
+            }
+        };
+        document.getElementById('resetTrimBtn').onclick = () => {
+            if (project.currentClipIndex !== -1) {
+                const clip = project.clips[project.currentClipIndex];
+                clip.trimStart = 0;
+                clip.trimEnd = clip.duration;
+                trimStart = null;
+                trimEnd = null;
+                videoPlayer.currentTime = 0;
+                alert('Обрезка сброшена');
+            }
+        };
+
+        // Transform
+        document.getElementById('rotateBtn').onclick = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            videoPlayer.style.transform = `rotate(${currentRotation}deg) scale(${currentFlipH ? -1 : 1}, ${currentFlipV ? -1 : 1})`;
+        };
+        document.getElementById('flipHorizontalBtn').onclick = () => {
+            currentFlipH = !currentFlipH;
+            videoPlayer.style.transform = `rotate(${currentRotation}deg) scale(${currentFlipH ? -1 : 1}, ${currentFlipV ? -1 : 1})`;
+        };
+        document.getElementById('flipVerticalBtn').onclick = () => {
+            currentFlipV = !currentFlipV;
+            videoPlayer.style.transform = `rotate(${currentRotation}deg) scale(${currentFlipH ? -1 : 1}, ${currentFlipV ? -1 : 1})`;
+        };
+
+        // Play/Pause
+        document.getElementById('playPauseBtn').onclick = () => {
+            if (videoPlayer.paused) {
+                videoPlayer.play();
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                videoPlayer.pause();
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
+            }
+        };
+
+        videoPlayer.ontimeupdate = () => {
+            updateChrono();
+            if (project.currentClipIndex !== -1) {
+                const clip = project.clips[project.currentClipIndex];
+                if (clip.trimEnd && videoPlayer.currentTime >= clip.trimEnd) {
+                    videoPlayer.pause();
+                    videoPlayer.currentTime = clip.trimStart;
+                    document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
+                }
+            }
+        };
+
+        // Tabs
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.onclick = () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const panelId = tab.dataset.tab + 'Panel';
+                document.querySelectorAll('.edit-panel').forEach(p => p.classList.remove('active'));
+                if (tab.dataset.tab === 'edit') {
+                    document.getElementById('editPanel').classList.add('active');
+                } else {
+                    alert(`Вкладка "${tab.innerText}" в разработке`);
+                    document.getElementById('editPanel').classList.add('active');
+                }
+            };
+        });
+    }
+
+    function loadClip(index) {
+        if (index >= 0 && index < project.clips.length) {
+            const clip = project.clips[index];
+            videoPlayer.src = clip.url;
+            videoPlayer.load();
+            videoPlayer.playbackRate = clip.speed;
+            videoPlayer.volume = clip.volume;
+            videoPlayer.currentTime = clip.trimStart || 0;
+            videoPlayer.onloadedmetadata = () => {
+                updateChrono();
+            };
+            updateTimeline();
+        }
+    }
+
+    function updateChrono() {
+        const current = videoPlayer.currentTime || 0;
+        let duration = videoPlayer.duration || 0;
+        if (project.currentClipIndex !== -1) {
+            const clip = project.clips[project.currentClipIndex];
+            if (clip.trimEnd) duration = clip.trimEnd - (clip.trimStart || 0);
+        }
+        document.getElementById('chronoDisplay').innerHTML = `${formatTime(current)} / ${formatTime(duration)}`;
+    }
+
+    function formatTime(sec) {
+        const mins = Math.floor(sec / 60);
+        const seconds = Math.floor(sec % 60);
+        return `${mins.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function updateTimeline() {
+        const container = document.getElementById('timelineClips');
+        container.innerHTML = '';
+        project.clips.forEach((clip, idx) => {
+            const clipDiv = document.createElement('div');
+            clipDiv.className = 'timeline-clip';
+            if (idx === project.currentClipIndex) clipDiv.classList.add('selected');
+            clipDiv.innerHTML = `
+                <div class="clip-name">${clip.name.substring(0, 20)}</div>
+                <div class="clip-duration">${formatTime(clip.duration)}</div>
+            `;
+            clipDiv.onclick = () => {
+                project.currentClipIndex = idx;
+                loadClip(idx);
+                updateTimeline();
+            };
+            container.appendChild(clipDiv);
+        });
+    }
+
+    function formatTime(sec) {
+        const mins = Math.floor(sec / 60);
+        const seconds = Math.floor(sec % 60);
+        return `${mins.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+</script>
 </body>
 </html>
